@@ -67,6 +67,9 @@ type MarshalOptions struct {
 	// UseEnumNumbers emits enum values as numbers.
 	UseEnumNumbers bool
 
+	// UseInt64Numbers emits uint64, int64, sint64 as numbers
+	UseInt64Numbers bool
+
 	// EmitUnpopulated specifies whether to emit unpopulated fields. It does not
 	// emit unpopulated oneof fields or unpopulated extension fields.
 	// The JSON value emitted for unpopulated fields are as follows:
@@ -82,6 +85,8 @@ type MarshalOptions struct {
 	//  ║ {}    │ map fields                 ║
 	//  ╚═══════╧════════════════════════════╝
 	EmitUnpopulated bool
+
+	EmitUnpopulatedRepeated bool
 
 	// EmitDefaultValues specifies whether to emit default-valued primitive fields,
 	// empty lists, and empty maps. The fields affected are as follows:
@@ -310,11 +315,20 @@ func (e encoder) marshalSingular(val protoreflect.Value, fd protoreflect.FieldDe
 	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
 		e.WriteUint(val.Uint())
 
-	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Uint64Kind,
-		protoreflect.Sfixed64Kind, protoreflect.Fixed64Kind:
+	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
 		// 64-bit integers are written out as JSON string.
-		e.WriteString(val.String())
-
+		if e.opts.UseInt64Numbers {
+			e.WriteUint(val.Uint())
+		} else {
+			e.WriteString(val.String())
+		}
+	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
+		// 64-bit integers are written out as JSON string.
+		if e.opts.UseInt64Numbers {
+			e.WriteInt(val.Int())
+		} else {
+			e.WriteString(val.String())
+		}
 	case protoreflect.FloatKind:
 		// Encoder.WriteFloat handles the special numbers NaN and infinites.
 		e.WriteFloat(val.Float(), 32)
