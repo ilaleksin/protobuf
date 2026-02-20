@@ -13,7 +13,7 @@ protocol buffer language, and also the runtime implementation to handle
 serialization of messages in Go. See the
 [protocol buffer developer guide](https://protobuf.dev/overview)
 for more information about protocol buffers themselves.
-
+ 
 This project is comprised of two components:
 
 *   Code generator: The
