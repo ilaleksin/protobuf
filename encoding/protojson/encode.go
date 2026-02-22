@@ -70,6 +70,13 @@ type MarshalOptions struct {
 	// UseInt64Numbers emits uint64, int64, sint64 as numbers
 	UseInt64Numbers bool
 
+	// EmitRepeated specifies whether to emit unpopulated repeated fields.
+	// It does not emit any other unpopulated types,
+	// unpopulated oneof fields or unpopulated extension fields.
+	// EmitUnpopulated takes precedence over EmitRepeated since the former generates
+	// a strict superset of the latter.
+	EmitRepeated bool
+
 	// EmitUnpopulated specifies whether to emit unpopulated fields. It does not
 	// emit unpopulated oneof fields or unpopulated extension fields.
 	// The JSON value emitted for unpopulated fields are as follows:
@@ -85,8 +92,6 @@ type MarshalOptions struct {
 	//  ║ {}    │ map fields                 ║
 	//  ╚═══════╧════════════════════════════╝
 	EmitUnpopulated bool
-
-	EmitUnpopulatedRepeated bool
 
 	// EmitDefaultValues specifies whether to emit default-valued primitive fields,
 	// empty lists, and empty maps. The fields affected are as follows:
@@ -257,6 +262,8 @@ func (e encoder) marshalMessage(m protoreflect.Message, typeURL string) error {
 		fields = unpopulatedFieldRanger{Message: m, skipNull: false}
 	case e.opts.EmitDefaultValues:
 		fields = unpopulatedFieldRanger{Message: m, skipNull: true}
+	case e.opts.EmitRepeated:
+		fields = arrayUnpopulatedFieldRanger{Message: m}
 	}
 	if typeURL != "" {
 		fields = typeURLFieldRanger{fields, typeURL}
