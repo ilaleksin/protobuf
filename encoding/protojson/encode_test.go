@@ -2410,6 +2410,37 @@ func TestMarshal(t *testing.T) {
   "optBytes": "6LC35q2M"
 }`,
 	}, {
+		desc: "UseEnumNumbers in singular field",
+		mo:   protojson.MarshalOptions{UseEnumNumbers: true},
+		input: &pb2.Enums{
+			OptEnum:       pb2.Enum_ONE.Enum(),
+			OptNestedEnum: pb2.Enums_UNO.Enum(),
+		},
+		want: `{
+  "optEnum": 1,
+  "optNestedEnum": 1
+}`,
+	}, {
+		desc: "UseEnumNumbers in repeated field",
+		mo:   protojson.MarshalOptions{UseEnumNumbers: true},
+		input: &pb2.Enums{
+			RptEnum:       []pb2.Enum{pb2.Enum_ONE, 2, pb2.Enum_TEN, 42},
+			RptNestedEnum: []pb2.Enums_NestedEnum{pb2.Enums_UNO, pb2.Enums_DOS, 47},
+		},
+		want: `{
+  "rptEnum": [
+    1,
+    2,
+    10,
+    42
+  ],
+  "rptNestedEnum": [
+    1,
+    2,
+    47
+  ]
+}`,
+	}, {
 		desc:  "EmitRepeated: proto2 optional scalars",
 		mo:    protojson.MarshalOptions{EmitRepeated: true},
 		input: &pb2.Scalars{},
@@ -2463,21 +2494,20 @@ func TestMarshal(t *testing.T) {
   "rptString": [],
   "rptBytes": []
 }`,
-	},
-		{
-			desc: "EmitRepeated: proto3 show empty repeated fields",
-			mo:   protojson.MarshalOptions{EmitRepeated: true},
-			input: &pb3.Repeats{
-				RptBool:   []bool{},
-				RptInt32:  []int32{},
-				RptInt64:  []int64{},
-				RptUint32: []uint32{},
-				RptUint64: []uint64{},
-				RptFloat:  []float32{},
-				RptDouble: []float64{},
-				RptString: []string{},
-				RptBytes:  [][]byte{},
-			}, want: `{
+	}, {
+		desc: "EmitRepeated: proto3 show empty repeated fields",
+		mo:   protojson.MarshalOptions{EmitRepeated: true},
+		input: &pb3.Repeats{
+			RptBool:   []bool{},
+			RptInt32:  []int32{},
+			RptInt64:  []int64{},
+			RptUint32: []uint32{},
+			RptUint64: []uint64{},
+			RptFloat:  []float32{},
+			RptDouble: []float64{},
+			RptString: []string{},
+			RptBytes:  [][]byte{},
+		}, want: `{
   "rptBool": [],
   "rptInt32": [],
   "rptInt64": [],
@@ -2488,70 +2518,70 @@ func TestMarshal(t *testing.T) {
   "rptString": [],
   "rptBytes": []
 }`,
-		}, {
-			desc:  "EmitRepeated: map fields",
-			mo:    protojson.MarshalOptions{EmitRepeated: true},
-			input: &pb3.Maps{},
-			want: `{
+	}, {
+		desc:  "EmitRepeated: map fields",
+		mo:    protojson.MarshalOptions{EmitRepeated: true},
+		input: &pb3.Maps{},
+		want: `{
   "int32ToStr": {},
   "boolToUint32": {},
   "uint64ToEnum": {},
   "strToNested": {},
   "strToOneofs": {}
 }`,
-		}, {
-			desc:  "EmitRepeated: oneof fields",
-			mo:    protojson.MarshalOptions{EmitRepeated: true},
-			input: &pb3.Oneofs{},
-			want:  `{}`,
-		}, {
-			desc: "EmitRepeated: with populated singular field",
-			mo:   protojson.MarshalOptions{EmitRepeated: true},
-			input: &pb2.Nests{
-				OptNested: &pb2.Nested{},
-			},
-			want: `{
+	}, {
+		desc:  "EmitRepeated: oneof fields",
+		mo:    protojson.MarshalOptions{EmitRepeated: true},
+		input: &pb3.Oneofs{},
+		want:  `{}`,
+	}, {
+		desc: "EmitRepeated: with populated singular field",
+		mo:   protojson.MarshalOptions{EmitRepeated: true},
+		input: &pb2.Nests{
+			OptNested: &pb2.Nested{},
+		},
+		want: `{
   "optNested": {},
   "rptNested": [],
   "rptgroup": []
 }`,
-		}, {
-			desc:  "EmitUnpopulated overrides EmitRepeated",
-			mo:    protojson.MarshalOptions{EmitUnpopulated: true, EmitRepeated: true},
-			input: &pb2.Nests{},
-			want: `{
+	}, {
+		desc:  "EmitUnpopulated overrides EmitRepeated",
+		mo:    protojson.MarshalOptions{EmitUnpopulated: true, EmitRepeated: true},
+		input: &pb2.Nests{},
+		want: `{
   "optNested": null,
   "optgroup": null,
   "rptNested": [],
   "rptgroup": []
 }`,
-		}, {
-			desc:  "EmitDefaultValues overrides EmitRepeated",
-			mo:    protojson.MarshalOptions{EmitDefaultValues: true, EmitRepeated: true},
-			input: &pb2.Nests{},
-			want: `{
+	}, {
+		desc:  "EmitDefaultValues overrides EmitRepeated",
+		mo:    protojson.MarshalOptions{EmitDefaultValues: true, EmitRepeated: true},
+		input: &pb2.Nests{},
+		want: `{
   "rptNested": [],
   "rptgroup": []
 }`,
-		}, {
-			desc: "UseEnumNumbers in singular field",
-			mo:   protojson.MarshalOptions{UseEnumNumbers: true},
-			input: &pb2.Enums{
-				OptEnum:       pb2.Enum_ONE.Enum(),
-				OptNestedEnum: pb2.Enums_UNO.Enum(),
-			},
-			want: `{
+	}, {
+		desc: "UseEnumNumbers in singular field",
+		mo:   protojson.MarshalOptions{UseEnumNumbers: true},
+		input: &pb2.Enums{
+			OptEnum:       pb2.Enum_ONE.Enum(),
+			OptNestedEnum: pb2.Enums_UNO.Enum(),
+		},
+		want: `{
   "optEnum": 1,
   "optNestedEnum": 1
 }`,
-		}, {
-			desc: "UseEnumNumbers in repeated field",
-			mo:   protojson.MarshalOptions{UseEnumNumbers: true},
-			input: &pb2.Enums{
-				RptEnum:       []pb2.Enum{pb2.Enum_ONE, 2, pb2.Enum_TEN, 42},
-				RptNestedEnum: []pb2.Enums_NestedEnum{pb2.Enums_UNO, pb2.Enums_DOS, 47},
-			},
-			want: `{
+	}, {
+		desc: "UseEnumNumbers in repeated field",
+		mo:   protojson.MarshalOptions{UseEnumNumbers: true},
+		input: &pb2.Enums{
+			RptEnum:       []pb2.Enum{pb2.Enum_ONE, 2, pb2.Enum_TEN, 42},
+			RptNestedEnum: []pb2.Enums_NestedEnum{pb2.Enums_UNO, pb2.Enums_DOS, 47},
+		},
+		want: `{
   "rptEnum": [
     1,
     2,
@@ -2564,18 +2594,18 @@ func TestMarshal(t *testing.T) {
     47
   ]
 }`,
-		}, {
-			desc: "UseEnumNumbers in map field",
-			mo:   protojson.MarshalOptions{UseEnumNumbers: true},
-			input: &pb3.Maps{
-				Uint64ToEnum: map[uint64]pb3.Enum{
-					1:  pb3.Enum_ONE,
-					2:  pb3.Enum_TWO,
-					10: pb3.Enum_TEN,
-					47: 47,
-				},
+	}, {
+		desc: "UseEnumNumbers in map field",
+		mo:   protojson.MarshalOptions{UseEnumNumbers: true},
+		input: &pb3.Maps{
+			Uint64ToEnum: map[uint64]pb3.Enum{
+				1:  pb3.Enum_ONE,
+				2:  pb3.Enum_TWO,
+				10: pb3.Enum_TEN,
+				47: 47,
 			},
-			want: `{
+		},
+		want: `{
   "uint64ToEnum": {
     "1": 1,
     "2": 2,
@@ -2583,109 +2613,27 @@ func TestMarshal(t *testing.T) {
     "47": 47
   }
 }`,
-		}, {
-			desc: "UseInt64Numbers: proto3 singular int64 fields",
-			mo:   protojson.MarshalOptions{UseInt64Numbers: true},
-			input: &pb3.Scalars{
-				SInt64:    -64,
-				SUint64:   0xdeadbeef,
-				SSint64:   -0xffff,
-				SFixed64:  64,
-				SSfixed64: -32,
-			},
-			want: `{
-  "sInt64": -64,
-  "sUint64": 3735928559,
-  "sSint64": -65535,
-  "sFixed64": 64,
-  "sSfixed64": -32
-}`,
-		}, {
-			desc: "UseInt64Numbers: proto2 optional int64 fields set to zero",
-			mo:   protojson.MarshalOptions{UseInt64Numbers: true},
-			input: &pb2.Scalars{
-				OptInt64:    proto.Int64(0),
-				OptUint64:   proto.Uint64(0),
-				OptSint64:   proto.Int64(0),
-				OptFixed64:  proto.Uint64(0),
-				OptSfixed64: proto.Int64(0),
-			},
-			want: `{
-  "optInt64": 0,
-  "optUint64": 0,
-  "optSint64": 0,
-  "optFixed64": 0,
-  "optSfixed64": 0
-}`,
-		}, {
-			desc: "UseInt64Numbers: proto2 optional int64 fields set to values",
-			mo:   protojson.MarshalOptions{UseInt64Numbers: true},
-			input: &pb2.Scalars{
-				OptInt64:    proto.Int64(0xdeadbeef),
-				OptUint64:   proto.Uint64(0xdeadbeef),
-				OptSint64:   proto.Int64(-0xffff),
-				OptFixed64:  proto.Uint64(64),
-				OptSfixed64: proto.Int64(-32),
-			},
-			want: `{
-  "optInt64": 3735928559,
-  "optUint64": 3735928559,
-  "optSint64": -65535,
-  "optFixed64": 64,
-  "optSfixed64": -32
-}`,
-		}, {
-			desc: "UseInt64Numbers: repeated int64 fields",
-			mo:   protojson.MarshalOptions{UseInt64Numbers: true},
-			input: &pb2.Repeats{
-				RptInt64:  []int64{-64, 47},
-				RptUint64: []uint64{0xdeadbeef},
-			},
-			want: `{
-  "rptInt64": [
-    -64,
-    47
-  ],
-  "rptUint64": [
-    3735928559
-  ]
-}`,
-		}, {
-			desc: "UseInt64Numbers: non-int64 fields unaffected",
-			mo:   protojson.MarshalOptions{UseInt64Numbers: true},
-			input: &pb3.Scalars{
-				SInt32:  42,
-				SUint32: 42,
-				SInt64:  42,
-				SUint64: 42,
-			},
-			want: `{
-  "sInt32": 42,
-  "sInt64": 42,
-  "sUint32": 42,
-  "sUint64": 42
-}`,
-		}, {
-			desc: "UseProtoNames",
-			mo:   protojson.MarshalOptions{UseProtoNames: true},
-			input: &pb2.Nests{
-				OptNested: &pb2.Nested{},
-				Optgroup: &pb2.Nests_OptGroup{
-					OptString: proto.String("inside a group"),
-					OptNested: &pb2.Nested{
-						OptString: proto.String("nested message inside a group"),
-					},
-					Optnestedgroup: &pb2.Nests_OptGroup_OptNestedGroup{
-						OptFixed32: proto.Uint32(47),
-					},
+	}, {
+		desc: "UseProtoNames",
+		mo:   protojson.MarshalOptions{UseProtoNames: true},
+		input: &pb2.Nests{
+			OptNested: &pb2.Nested{},
+			Optgroup: &pb2.Nests_OptGroup{
+				OptString: proto.String("inside a group"),
+				OptNested: &pb2.Nested{
+					OptString: proto.String("nested message inside a group"),
 				},
-				Rptgroup: []*pb2.Nests_RptGroup{
-					{
-						RptString: []string{"hello", "world"},
-					},
+				Optnestedgroup: &pb2.Nests_OptGroup_OptNestedGroup{
+					OptFixed32: proto.Uint32(47),
 				},
 			},
-			want: `{
+			Rptgroup: []*pb2.Nests_RptGroup{
+				{
+					RptString: []string{"hello", "world"},
+				},
+			},
+		},
+		want: `{
   "opt_nested": {},
   "OptGroup": {
     "opt_string": "inside a group",
@@ -2705,7 +2653,89 @@ func TestMarshal(t *testing.T) {
     }
   ]
 }`,
-		}}
+	}, {
+		desc: "UseInt64Numbers: proto3 singular int64 fields",
+		mo:   protojson.MarshalOptions{UseInt64Numbers: true},
+		input: &pb3.Scalars{
+			SInt64:    -64,
+			SUint64:   0xdeadbeef,
+			SSint64:   -0xffff,
+			SFixed64:  64,
+			SSfixed64: -32,
+		},
+		want: `{
+  "sInt64": -64,
+  "sUint64": 3735928559,
+  "sSint64": -65535,
+  "sFixed64": 64,
+  "sSfixed64": -32
+}`,
+	}, {
+		desc: "UseInt64Numbers: proto2 optional int64 fields set to zero",
+		mo:   protojson.MarshalOptions{UseInt64Numbers: true},
+		input: &pb2.Scalars{
+			OptInt64:    proto.Int64(0),
+			OptUint64:   proto.Uint64(0),
+			OptSint64:   proto.Int64(0),
+			OptFixed64:  proto.Uint64(0),
+			OptSfixed64: proto.Int64(0),
+		},
+		want: `{
+  "optInt64": 0,
+  "optUint64": 0,
+  "optSint64": 0,
+  "optFixed64": 0,
+  "optSfixed64": 0
+}`,
+	}, {
+		desc: "UseInt64Numbers: proto2 optional int64 fields set to values",
+		mo:   protojson.MarshalOptions{UseInt64Numbers: true},
+		input: &pb2.Scalars{
+			OptInt64:    proto.Int64(0xdeadbeef),
+			OptUint64:   proto.Uint64(0xdeadbeef),
+			OptSint64:   proto.Int64(-0xffff),
+			OptFixed64:  proto.Uint64(64),
+			OptSfixed64: proto.Int64(-32),
+		},
+		want: `{
+  "optInt64": 3735928559,
+  "optUint64": 3735928559,
+  "optSint64": -65535,
+  "optFixed64": 64,
+  "optSfixed64": -32
+}`,
+	}, {
+		desc: "UseInt64Numbers: repeated int64 fields",
+		mo:   protojson.MarshalOptions{UseInt64Numbers: true},
+		input: &pb2.Repeats{
+			RptInt64:  []int64{-64, 47},
+			RptUint64: []uint64{0xdeadbeef},
+		},
+		want: `{
+  "rptInt64": [
+    -64,
+    47
+  ],
+  "rptUint64": [
+    3735928559
+  ]
+}`,
+	}, {
+		desc: "UseInt64Numbers: non-int64 fields unaffected",
+		mo:   protojson.MarshalOptions{UseInt64Numbers: true},
+		input: &pb3.Scalars{
+			SInt32:  42,
+			SUint32: 42,
+			SInt64:  42,
+			SUint64: 42,
+		},
+		want: `{
+  "sInt32": 42,
+  "sInt64": 42,
+  "sUint32": 42,
+  "sUint64": 42
+}`,
+	}}
 
 	for _, tt := range tests {
 		tt := tt
