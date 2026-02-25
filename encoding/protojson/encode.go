@@ -325,15 +325,15 @@ func (e encoder) marshalSingular(val protoreflect.Value, fd protoreflect.FieldDe
 	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
 		if e.opts.UseInt64Numbers {
 			e.WriteUint(val.Uint())
-		} else {
-			e.WriteString(val.String())
+			return nil
 		}
+		e.WriteString(val.String())
 	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
 		if e.opts.UseInt64Numbers {
 			e.WriteInt(val.Int())
-		} else {
-			e.WriteString(val.String())
+			return nil
 		}
+		e.WriteString(val.String())
 	case protoreflect.FloatKind:
 		// Encoder.WriteFloat handles the special numbers NaN and infinites.
 		e.WriteFloat(val.Float(), 32)
