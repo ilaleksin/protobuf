@@ -67,6 +67,16 @@ type MarshalOptions struct {
 	// UseEnumNumbers emits enum values as numbers.
 	UseEnumNumbers bool
 
+	// UseInt64Numbers emits uint64, int64, sint64 as numbers
+	UseInt64Numbers bool
+
+	// EmitRepeated specifies whether to emit unpopulated repeated fields.
+	// It does not emit any other unpopulated types,
+	// unpopulated oneof fields or unpopulated extension fields.
+	// EmitUnpopulated takes precedence over EmitRepeated since the former generates
+	// a strict superset of the latter.
+	EmitRepeated bool
+
 	// EmitUnpopulated specifies whether to emit unpopulated fields. It does not
 	// emit unpopulated oneof fields or unpopulated extension fields.
 	// The JSON value emitted for unpopulated fields are as follows:
@@ -252,6 +262,8 @@ func (e encoder) marshalMessage(m protoreflect.Message, typeURL string) error {
 		fields = unpopulatedFieldRanger{Message: m, skipNull: false}
 	case e.opts.EmitDefaultValues:
 		fields = unpopulatedFieldRanger{Message: m, skipNull: true}
+	case e.opts.EmitRepeated:
+		fields = arrayUnpopulatedFieldRanger{Message: m}
 	}
 	if typeURL != "" {
 		fields = typeURLFieldRanger{fields, typeURL}
@@ -310,9 +322,18 @@ func (e encoder) marshalSingular(val protoreflect.Value, fd protoreflect.FieldDe
 	case protoreflect.Uint32Kind, protoreflect.Fixed32Kind:
 		e.WriteUint(val.Uint())
 
-	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Uint64Kind,
-		protoreflect.Sfixed64Kind, protoreflect.Fixed64Kind:
-		// 64-bit integers are written out as JSON string.
+	case protoreflect.Uint64Kind, protoreflect.Fixed64Kind:
+		if e.opts.UseInt64Numbers {
+			e.WriteUint(val.Uint())
+			return nil
+		}
+		e.WriteString(val.String())
+
+	case protoreflect.Int64Kind, protoreflect.Sint64Kind, protoreflect.Sfixed64Kind:
+		if e.opts.UseInt64Numbers {
+			e.WriteInt(val.Int())
+			return nil
+		}
 		e.WriteString(val.String())
 
 	case protoreflect.FloatKind:
